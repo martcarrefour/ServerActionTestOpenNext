@@ -22,10 +22,12 @@ jobs:
 
       - name: Configure
         run: |
-          if [ ${{ env.BRANCH }} == 'dev' ]; then
-            rm .env.production
-            cp .env.development .env.production
+          if [ "${{ env.BRANCH }}" == "dev" ]; then
+            export NODE_ENV=development
+          else
+            export NODE_ENV=production
           fi
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
