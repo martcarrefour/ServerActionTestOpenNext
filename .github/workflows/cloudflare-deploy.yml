@@ -11,27 +11,41 @@ jobs:
     env:
       BRANCH: ${{ github.head_ref || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 9
-      - uses: actions/setup-node@v4
+
+      # Step 3: Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
 
-      - name: Configure
+      # Step 4: Configure environment
+      - name: Configure Environment
         run: |
           if [ "${{ env.BRANCH }}" == "dev" ]; then
-            export NODE_ENV=development
+            echo "Setting NODE_ENV to development"
+            echo "NODE_ENV=development" >> $GITHUB_ENV
           else
-            export NODE_ENV=production
+            echo "Setting NODE_ENV to production"
+            echo "NODE_ENV=production" >> $GITHUB_ENV
           fi
 
-      - name: Deploy
+      # Step 5: Deploy with Cloudflare Wrangler
+      - name: Deploy with Cloudflare Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID}}
-          preCommands: NODE_ENV=${{ env.BRANCH == 'dev' && 'development' || 'production' }} npm run build:worker
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          preCommands: |
+            pnpm install
+            NODE_ENV=${{ env.NODE_ENV }} pnpm run build:worker
           command: deploy --env ${{ env.BRANCH }}
