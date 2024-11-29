@@ -1,0 +1,22 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "frontend"
+main = ".open-next/worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+[env.main]
+kv_namespaces = [
+  { binding = "NEXT_CACHE_WORKERS_KV", id = "7d0d094a4a5d4ef3a008730efadad027" },
+]
+
+[env.dev]
+routes = [
+  { pattern = "frontend-staging.flatsharing.biz", custom_domain = true },
+]
+[observability.logs]
+enabled = true
+
+kv_namespaces = [
+  { binding = "NEXT_CACHE_WORKERS_KV", id = "c0c379d988074b1c96f7ac68a202f6e9" },
+]
